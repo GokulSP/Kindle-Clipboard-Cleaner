@@ -41,3 +41,6 @@ nul
 *.swp
 *~
 .idea/
+
+# Claude Code settings (local configuration)
+.claude/
