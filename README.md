@@ -135,6 +135,17 @@ Right-click the tray icon and uncheck "Run at Startup", or manually remove the r
 HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\KindleClipboardCleaner
 ```
 
+## Credits
+
+### Icon Attribution
+The application icon is derived from the [KDE Oxygen Icons](https://develop.kde.org/frameworks/oxygen-icons/) project.
+
+**License:** GNU Lesser General Public License (LGPL)
+**Original Authors:** KDE Visual Design Group
+**Source:** https://develop.kde.org/frameworks/oxygen-icons/
+
+The Oxygen Icon Theme is licensed under the GNU Lesser General Public License, which allows redistribution and modification. The icon has been adapted for use in this application while maintaining compliance with the LGPL terms.
+
 ## License
 
-Free to use and modify.
+This application is free to use and modify. The application icon is subject to the LGPL license as noted in the Credits section above.

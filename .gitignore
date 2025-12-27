@@ -35,6 +35,7 @@ TestResults/
 .DS_Store
 Thumbs.db
 desktop.ini
+nul
 
 # IDE files
 *.swp
