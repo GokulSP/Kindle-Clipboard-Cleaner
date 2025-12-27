@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -62,7 +63,7 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         // Create system tray icon
         _trayIcon = new NotifyIcon
         {
-            Icon = CreateIcon(),
+            Icon = LoadIcon(),
             Visible = true,
             Text = AppName
         };
@@ -124,9 +125,36 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         };
     }
 
-    private Icon CreateIcon()
+    private Icon LoadIcon()
     {
-        // Dieter Rams principle: As little design as possible - clear, functional icon
+        // Load icon from file or create fallback
+        try
+        {
+            // Try to load from icon.ico file in the same directory as the executable
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
+            if (File.Exists(iconPath))
+            {
+                return new Icon(iconPath);
+            }
+
+            // Try to extract from application's embedded icon
+            var icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            if (icon != null)
+            {
+                return icon;
+            }
+        }
+        catch
+        {
+            // Fall through to create programmatic icon
+        }
+
+        // Fallback: Create programmatic icon (Dieter Rams principle: As little design as possible)
+        return CreateProgrammaticIcon();
+    }
+
+    private Icon CreateProgrammaticIcon()
+    {
         _iconBitmap = new Bitmap(IconSize, IconSize);
 
         using (var g = Graphics.FromImage(_iconBitmap))
