@@ -28,6 +28,7 @@
     <Optimize>true</Optimize>
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
+    <PublishDir>dist\</PublishDir>
   </PropertyGroup>
 
   <ItemGroup>

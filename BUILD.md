@@ -5,6 +5,7 @@
 Install .NET 10 SDK (latest preview):
 
 **Via winget:**
+
 ```bash
 winget install Microsoft.DotNet.SDK.Preview
 ```
@@ -37,7 +38,7 @@ Framework-dependent build with automatic runtime check:
 dotnet publish -c Release
 ```
 
-**Output:** `bin\Release\net10.0-windows\win-x64\publish\KindleClipboardCleaner.exe` (535 KB / 0.52 MB)
+**Output:** `dist\KindleClipboardCleaner.exe` (535 KB / 0.52 MB)
 
 **Advantages:**
 
@@ -62,7 +63,7 @@ If you prefer bundling the runtime (no installation required):
 dotnet publish -c Release --self-contained true
 ```
 
-**Output:** `bin\Release\net10.0-windows\win-x64\publish\KindleClipboardCleaner.exe` (~50 MB)
+**Output:** `dist\KindleClipboardCleaner.exe` (~50 MB)
 
 **Trade-offs:**
 
@@ -108,6 +109,7 @@ The project is configured in [KindleClipboardCleaner.csproj](KindleClipboardClea
 After building, deploy `dist\KindleClipboardCleaner.exe` to the target machine. The executable is fully self-contained and requires no additional files or installation.
 
 Users can:
+
 1. Run the .exe file directly
 2. Enable auto-startup via the tray menu
 3. The application will create its own registry entries for startup management
