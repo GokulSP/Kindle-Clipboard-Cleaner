@@ -28,6 +28,8 @@ public partial class ClipboardCleanerTrayApp : IDisposable
     private readonly object _clipboardLock = new object();
     private Bitmap? _iconBitmap;
     private IntPtr _iconHandle;
+    private Icon? _cachedIcon;
+    private ContextMenuStrip? _contextMenu;
     private string _lastClipboard = string.Empty;
     private int _citationsCleaned = 0;
     private bool _disposed = false;
@@ -63,13 +65,13 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         // Create system tray icon
         _trayIcon = new NotifyIcon
         {
-            Icon = LoadIcon(),
+            Icon = GetOrCreateIcon(),
             Visible = true,
             Text = AppName
         };
 
-        // Create context menu with improved design
-        _trayIcon.ContextMenuStrip = CreateContextMenu();
+        // Lazy-load context menu on first access for faster startup
+        _trayIcon.MouseClick += OnTrayIconMouseClick;
 
         // Start clipboard monitoring timer
         _clipboardTimer = new System.Windows.Forms.Timer
@@ -125,8 +127,14 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         };
     }
 
-    private Icon LoadIcon()
+    private Icon GetOrCreateIcon()
     {
+        // Cache icon to avoid repeated extraction
+        if (_cachedIcon != null)
+        {
+            return _cachedIcon;
+        }
+
         // Load icon from file or create fallback
         try
         {
@@ -134,14 +142,16 @@ public partial class ClipboardCleanerTrayApp : IDisposable
             var iconPath = Path.Combine(AppContext.BaseDirectory, "icon.ico");
             if (File.Exists(iconPath))
             {
-                return new Icon(iconPath);
+                _cachedIcon = new Icon(iconPath);
+                return _cachedIcon;
             }
 
             // Try to extract from application's embedded icon
             var icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             if (icon != null)
             {
-                return icon;
+                _cachedIcon = icon;
+                return _cachedIcon;
             }
         }
         catch
@@ -150,7 +160,8 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         }
 
         // Fallback: Create programmatic icon (Dieter Rams principle: As little design as possible)
-        return CreateProgrammaticIcon();
+        _cachedIcon = CreateProgrammaticIcon();
+        return _cachedIcon;
     }
 
     private Icon CreateProgrammaticIcon()
@@ -250,15 +261,30 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         return text;
     }
 
+    private void OnTrayIconMouseClick(object? sender, MouseEventArgs e)
+    {
+        // Lazy-load context menu on first right-click
+        if (e.Button == MouseButtons.Right && _contextMenu == null)
+        {
+            _contextMenu = CreateContextMenu();
+            _trayIcon.ContextMenuStrip = _contextMenu;
+        }
+    }
+
     private void UpdateTrayMenu()
     {
-        if (_trayIcon.ContextMenuStrip?.InvokeRequired == true)
+        if (_contextMenu == null)
         {
-            _trayIcon.ContextMenuStrip.Invoke(() => UpdateTrayMenu());
             return;
         }
 
-        if (_trayIcon.ContextMenuStrip?.Items[0] is ToolStripMenuItem headerItem)
+        if (_contextMenu.InvokeRequired)
+        {
+            _contextMenu.Invoke(() => UpdateTrayMenu());
+            return;
+        }
+
+        if (_contextMenu.Items[0] is ToolStripMenuItem headerItem)
         {
             headerItem.Text = $"{AppName}\n{GetCleanedCountText()}";
         }
@@ -348,6 +374,14 @@ public partial class ClipboardCleanerTrayApp : IDisposable
         _clipboardTimer?.Stop();
         _clipboardTimer?.Dispose();
         _trayIcon?.Dispose();
+
+        // Dispose cached context menu
+        _contextMenu?.Dispose();
+        _contextMenu = null;
+
+        // Dispose cached icon
+        _cachedIcon?.Dispose();
+        _cachedIcon = null;
 
         // Properly dispose of icon resources to prevent memory leak
         if (_iconHandle != IntPtr.Zero)
