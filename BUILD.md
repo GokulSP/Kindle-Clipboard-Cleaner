@@ -13,44 +13,62 @@ winget install Microsoft.DotNet.SDK.Preview
 
 ## Building
 
-### Production Build (Recommended)
+### Development Build (Fast, Cached)
 
-Creates a self-contained executable with .NET 10 runtime bundled:
+For quick iteration during development:
 
 ```bash
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishDir=dist
+dotnet build
 ```
 
-**Output:** `dist\KindleClipboardCleaner.exe` (~124 MB)
+**Characteristics:**
+
+- Uses incremental compilation
+- Uses compiler cache
+- Typically 1-2 seconds for small changes
+- **Output:** `bin\Debug\net10.0-windows\KindleClipboardCleaner.exe`
+- Requires .NET 10 Runtime installed
+
+### Production Build (Recommended - Tiny!)
+
+Framework-dependent build with automatic runtime check:
+
+```bash
+dotnet publish -c Release
+```
+
+**Output:** `bin\Release\net10.0-windows\win-x64\publish\KindleClipboardCleaner.exe` (535 KB / 0.52 MB)
 
 **Advantages:**
-- No .NET runtime required on target machine
+
+- **99.6% smaller** than bundled runtime (0.52 MB vs 122 MB)
 - Single file deployment
-- Works on any Windows 10+ machine
+- Automatically checks for .NET 10 runtime on startup
+- Prompts user to download runtime if missing with direct download link
+- Full optimization enabled
+- Much faster to distribute and download
 
-### Framework-Dependent Build
+**Requirements:**
 
-Smaller executable that requires .NET 10 runtime on target machine:
+- Target machine needs .NET 10 Desktop Runtime
+- Application handles runtime check automatically
+- One-time runtime install (~50 MB) works for all .NET apps
 
-```bash
-dotnet publish -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -p:PublishDir=dist
-```
+### Alternative: Self-Contained Build
 
-**Output:** `dist\KindleClipboardCleaner.exe` (~1-2 MB)
-
-**Use when:**
-- Target machine has .NET 10 runtime installed
-- Minimizing file size is important
-
-### Development Build
-
-For debugging and development:
+If you prefer bundling the runtime (no installation required):
 
 ```bash
-dotnet build -c Debug
+dotnet publish -c Release --self-contained true
 ```
 
-**Output:** `bin\Debug\net10.0-windows\KindleClipboardCleaner.exe`
+**Output:** `bin\Release\net10.0-windows\win-x64\publish\KindleClipboardCleaner.exe` (~50 MB)
+
+**Trade-offs:**
+
+- **Pros:** No runtime installation required
+- **Cons:** Much larger file (50 MB vs 2-5 MB)
+- **Note:** Windows Forms cannot use IL trimming, so 50 MB is the minimum for self-contained
 
 ## Testing
 

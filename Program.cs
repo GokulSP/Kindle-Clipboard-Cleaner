@@ -8,6 +8,12 @@ static class Program
     [STAThread]
     static void Main()
     {
+        // Check if required .NET runtime is installed
+        if (!RuntimeChecker.CheckRuntime())
+        {
+            return;
+        }
+
         Application.SetHighDpiMode(HighDpiMode.SystemAware);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
