@@ -28,7 +28,7 @@ public class CitationCleanerTests
             RegexOptions.Multiline | RegexOptions.Compiled)
     };
 
-    private string CleanKindleCitation(string text)
+    private string? CleanKindleCitation(string? text)
     {
         if (string.IsNullOrWhiteSpace(text))
             return text;
