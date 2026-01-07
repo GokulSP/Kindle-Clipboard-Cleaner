@@ -10,19 +10,19 @@ public class CitationCleanerTests
     private static readonly Regex[] KindlePatterns = new[]
     {
         // Double newline patterns (most common)
-        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\(p\. \d+\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
         new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Single newline patterns
-        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\(p\. \d+\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
         new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Inline citation patterns (after sentence ending: ". " + Author name)
-        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\(p\. \d+\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
         new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled)
@@ -207,6 +207,30 @@ public class CitationCleanerTests
         // The ACTUAL text user just provided that's failing
         var input = "completed word is not correct, keep triggering the command until the correct name appears. It's surprisingly accurate. It works on any type of file, in any language. And it works for any token, even if you're typing a comment.\r\n\r\nBoswell, Dustin; Foucher, Trevor. The Art of Readable Code: Simple and Practical Techniques for Writing Better Code (p. 42). O'Reilly Media. Kindle Edition.";
         var expected = "completed word is not correct, keep triggering the command until the correct name appears. It's surprisingly accurate. It works on any type of file, in any language. And it works for any token, even if you're typing a comment.";
+
+        var result = CleanKindleCitation(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void CleanKindleCitation_PageRange_RemovesCitation()
+    {
+        // Citations with page ranges (pp. 90-91) instead of single page (p. 42)
+        var input = "6.22 Fan Chi asked about wisdom. The Master said, \"Work for what is appropriate and right in human relationships; show respect to the gods and spirits while keeping them at a distance—this can be called wisdom.\"\r\n\r\nConfucius. The Analects (Penguin Classics) (pp. 90-91). Penguin Publishing Group. Kindle Edition.";
+        var expected = "6.22 Fan Chi asked about wisdom. The Master said, \"Work for what is appropriate and right in human relationships; show respect to the gods and spirits while keeping them at a distance—this can be called wisdom.\"";
+
+        var result = CleanKindleCitation(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void CleanKindleCitation_PageRange_SingleNewline_RemovesCitation()
+    {
+        // Citations with page ranges (pp.) and single newline - testing reported issue
+        var input = "6.22 Fan Chi asked about wisdom. The Master said, \"Work for what is appropriate and right in human relationships; show respect to the gods and spirits while keeping them at a distance - this can be called wisdom.\"\r\nConfucius. The Analects (Penguin Classics) (pp. 90-91). Penguin Publishing Group. Kindle Edition.";
+        var expected = "6.22 Fan Chi asked about wisdom. The Master said, \"Work for what is appropriate and right in human relationships; show respect to the gods and spirits while keeping them at a distance - this can be called wisdom.\"";
 
         var result = CleanKindleCitation(input);
 

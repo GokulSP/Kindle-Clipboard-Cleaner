@@ -39,19 +39,19 @@ public partial class ClipboardCleanerTrayApp : IDisposable
     private static readonly Regex[] KindlePatterns = new[]
     {
         // Double newline patterns (most common)
-        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\(p\. \d+\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
         new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Single newline patterns
-        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\(p\. \d+\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
         new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Inline citation patterns (after sentence ending: ". " + Author name)
-        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\(p\. \d+\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
         new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled)
