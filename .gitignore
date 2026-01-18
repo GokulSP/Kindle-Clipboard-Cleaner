@@ -44,3 +44,6 @@ nul
 
 # Claude Code settings (local configuration)
 .claude/
+
+# Debug/test folders
+RegexDebug/
