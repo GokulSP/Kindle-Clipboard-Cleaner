@@ -11,6 +11,8 @@
     <Version>2.0.0</Version>
     <Authors>Gokul SP</Authors>
     <Description>Automatically removes Kindle citation notes from clipboard</Description>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <!-- Debug build: Fast incremental compilation with compiler cache -->
@@ -24,7 +26,6 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <Optimize>true</Optimize>
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
@@ -35,6 +36,9 @@
     <Compile Remove="KindleClipboardCleaner.Tests\**" />
     <EmbeddedResource Remove="KindleClipboardCleaner.Tests\**" />
     <None Remove="KindleClipboardCleaner.Tests\**" />
+    <Compile Remove="RegexDebug\**" />
+    <EmbeddedResource Remove="RegexDebug\**" />
+    <None Remove="RegexDebug\**" />
   </ItemGroup>
 
 </Project>

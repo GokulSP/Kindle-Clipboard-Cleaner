@@ -7,24 +7,26 @@ public class CitationCleanerTests
 {
     // Optimized regex patterns with separate matching for different citation formats
     // Using proven patterns but consolidated into maintainable array
+    // Note: Custom uploaded books may not have publisher info
     private static readonly Regex[] KindlePatterns = new[]
     {
         // Double newline patterns (most common)
-        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        // With location and optional publisher
+        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\((?:pp?\.|Kindle Locations?) \d+(?:-\d+)?\)\. (?:[^\r\n]+\. )?Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
-        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\. [^\r\n]*\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Single newline patterns
-        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\((?:pp?\.|Kindle Locations?) \d+(?:-\d+)?\)\. (?:[^\r\n]+\. )?Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
-        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\. [^\r\n]*\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Inline citation patterns (after sentence ending: ". " + Author name)
-        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\((?:pp?\.|Kindle Locations?) \d+(?:-\d+)?\)\. (?:[^\r\n]+\. )?Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
-        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\. [^\r\n]*\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled)
     };
 
@@ -231,6 +233,30 @@ public class CitationCleanerTests
         // Citations with page ranges (pp.) and single newline - testing reported issue
         var input = "6.22 Fan Chi asked about wisdom. The Master said, \"Work for what is appropriate and right in human relationships; show respect to the gods and spirits while keeping them at a distance - this can be called wisdom.\"\r\nConfucius. The Analects (Penguin Classics) (pp. 90-91). Penguin Publishing Group. Kindle Edition.";
         var expected = "6.22 Fan Chi asked about wisdom. The Master said, \"Work for what is appropriate and right in human relationships; show respect to the gods and spirits while keeping them at a distance - this can be called wisdom.\"";
+
+        var result = CleanKindleCitation(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void CleanKindleCitation_SingleWordBeforeCitation_RemovesCitation()
+    {
+        // Text ending with a single word before citation (like "friends")
+        var input = "friends\r\n\r\nMark Michaelis. Essential C# 12.0 (Kindle Location 37). Kindle Edition.";
+        var expected = "friends";
+
+        var result = CleanKindleCitation(input);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void CleanKindleCitation_KindleLocationsPlural_RemovesCitation()
+    {
+        // Citations with "Kindle Locations" (plural) for ranges
+        var input = "code base like this running smoothly. Thanks especially for making the EssentialCSharp.com website a reality.\r\n\r\nMark Michaelis. Essential C# 12.0 (Kindle Locations 38-39). Kindle Edition.";
+        var expected = "code base like this running smoothly. Thanks especially for making the EssentialCSharp.com website a reality.";
 
         var result = CleanKindleCitation(input);
 

@@ -36,24 +36,26 @@ public partial class ClipboardCleanerTrayApp : IDisposable
 
     // Optimized regex patterns with separate matching for different citation formats
     // Using proven patterns but consolidated into maintainable array
+    // Note: Custom uploaded books may not have publisher info
     private static readonly Regex[] KindlePatterns = new[]
     {
         // Double newline patterns (most common)
-        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        // With location and optional publisher
+        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\((?:pp?\.|Kindle Locations?) \d+(?:-\d+)?\)\. (?:[^\r\n]+\. )?Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
-        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n){2,}[^\r\n]+\. [^\r\n]+\. [^\r\n]*\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Single newline patterns
-        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\((?:pp?\.|Kindle Locations?) \d+(?:-\d+)?\)\. (?:[^\r\n]+\. )?Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
-        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?:\r?\n)[^\r\n]+\. [^\r\n]+\. [^\r\n]*\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
 
         // Inline citation patterns (after sentence ending: ". " + Author name)
-        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\(pp?\. \d+(?:-\d+)?\)\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\((?:pp?\.|Kindle Locations?) \d+(?:-\d+)?\)\. (?:[^\r\n]+\. )?Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled),
-        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\. [^\r\n]+\. Kindle Edition\.\s*$",
+        new Regex(@"(?<=\.)\s+[A-Z][a-z]+,\s[^\r\n]+\. [^\r\n]+\. [^\r\n]*\. Kindle Edition\.\s*$",
             RegexOptions.Multiline | RegexOptions.Compiled)
     };
 
